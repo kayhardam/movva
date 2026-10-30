@@ -11,7 +11,9 @@ export default defineConfig({
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
 			// Static files for now: no server yet. Accounts and sync later mean a server adapter.
-			adapter: adapter()
+			// 404.html is the app shell for any address without its own page; Cloudflare
+			// serves it with status 404 (see wrangler.jsonc).
+			adapter: adapter({ fallback: '404.html' })
 		})
 	],
 	test: {
