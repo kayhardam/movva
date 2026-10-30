@@ -8,7 +8,7 @@ Guidance for Claude Code in this repository. Svelte-specific tooling lives in `A
 
 No account and no server: the log lives in the browser and a plan is shared through a link. The code is laid out so a server (accounts, sync) can be added later without a rewrite.
 
-Movva grows in numbered modules, each specified in [docs/modules/](docs/modules/). UI copy is Dutch first; English follows in its own module. Code, comments and this file are English. Commit messages are Dutch: `Module N: <stap>`.
+Movva grows in numbered modules, each specified in [docs/modules/](docs/modules/). UI copy is Dutch first; English follows in its own module. Code, comments and this file are English. Commit messages are Dutch: `Module N: <stap>`. Commits are Kay's (`Kay Hardam <102677416+kayhardam@users.noreply.github.com>`, set in this repo's git config) and carry no `Co-Authored-By` or `Claude-Session` lines: Kay's choice, as in Coachboard.
 
 ## Way of working
 
