@@ -1,12 +1,33 @@
-import { svelte } from '@sveltejs/vite-plugin-svelte'
-import { defineConfig } from 'vitest/config'
+import { defineConfig } from 'vitest/config';
+import adapter from '@sveltejs/adapter-static';
+import { sveltekit } from '@sveltejs/kit/vite';
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [svelte()],
-  test: {
-    include: ['src/**/*.test.ts'],
-    // Run the tests in Dutch time, so the daylight saving switches really happen.
-    env: { TZ: 'Europe/Amsterdam' },
-  },
-})
+	plugins: [
+		sveltekit({
+			compilerOptions: {
+				// Force runes mode for the project, except for libraries. Can be removed in svelte 6.
+				runes: ({ filename }) =>
+					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
+			},
+			// Static files for now: no server yet. Accounts and sync later mean a server adapter.
+			adapter: adapter()
+		})
+	],
+	test: {
+		expect: { requireAssertions: true },
+		projects: [
+			{
+				extends: './vite.config.ts',
+				test: {
+					name: 'server',
+					environment: 'node',
+					include: ['src/**/*.{test,spec}.{js,ts}'],
+					exclude: ['src/**/*.svelte.{test,spec}.{js,ts}'],
+					// Run in Dutch time, so the daylight saving switches really happen in the tests.
+					env: { TZ: 'Europe/Amsterdam' }
+				}
+			}
+		]
+	}
+});
