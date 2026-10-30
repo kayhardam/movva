@@ -13,6 +13,8 @@ npm test         # rekenregels testen
 npm run check    # TypeScript en Svelte controleren
 npm run lint     # opmaak en ESLint
 npm run build    # statische site in build/
+npm run verify   # alles wat CI controleert, plus het groottebudget
+npm run e2e      # Playwright op een Pixel 7 en een iPhone 15
 ```
 
 ## Opbouw
@@ -27,18 +29,25 @@ src/lib/                  de kern, zonder scherm, elk bestand met een .test.ts e
   advice.ts               wat je vandaag tilt: dubbele progressie
   plates.ts               welke schijven aan elke kant
   planner.ts              de weekindeling, met de keuze per week
-src/routes/               de schermen (SvelteKit)
+  session.ts              de training van een dag: formulier en log
+  progress.ts             voortgang per oefening, sport van de laatste weken
+  store/store.ts          opslag in je browser (IndexedDB via Dexie)
+  i18n/nl.ts              alle teksten
+  app.svelte.ts           de status van de app en opslaan zonder knop
+src/lib/components/       de onderdelen van het scherm
+src/routes/               de pagina's (SvelteKit)
+e2e/                      Playwright-tests op een telefoon
 docs/modules/             per module een spec: waarom, scope en acceptatiecriteria
 ```
 
 ## Stack
 
-SvelteKit 3 · Svelte 5 · TypeScript · Zod · Vitest · statisch gebouwd. Waarom deze keuzes: [Module 1](docs/modules/01-fundament.md). Afspraken voor wie eraan bouwt, mens of Claude Code: [CLAUDE.md](CLAUDE.md).
+SvelteKit 3 · Svelte 5 · TypeScript · Zod · Dexie · Vitest · Playwright · statisch gebouwd en gehost op Cloudflare. Waarom deze keuzes: [Module 1](docs/modules/01-fundament.md). Afspraken voor wie eraan bouwt, mens of Claude Code: [CLAUDE.md](CLAUDE.md).
 
 ## Stand van zaken
 
 1. Fundament: klaar
-2. Logboek: spec klaar, wacht op akkoord
+2. Logboek: klaar
 3. Zelf instellen: week, startdatum en oefeningen
 4. Back-up, import en deellink, ook voor je oude log
 5. Installeren en offline

@@ -1,0 +1,25 @@
+// Cloudflare Workers Builds runs `npx wrangler deploy` after `npm run build`
+// on main, and `npx wrangler preview` on other branches, as for Coachboard.
+// This file makes that a plain static-assets upload of build/: no Worker code.
+{
+	"name": "movva",
+	// Keep this in the past: Cloudflare rejects a date newer than its runtime.
+	// Nothing here depends on it; the Worker only serves files.
+	"compatibility_date": "2026-09-01",
+	"assets": {
+		"directory": "./build",
+		// SvelteKit writes pages as name.html; /name serves them.
+		"html_handling": "auto-trailing-slash",
+		// Serve build/404.html, with status 404, for anything that doesn't exist.
+		"not_found_handling": "404-page"
+	},
+	// The production domain belongs here, not only in the dashboard: a deploy
+	// whose config lacks it removes it again. Uncomment once movva.eu is a zone
+	// in the same Cloudflare account (module 7).
+	// "routes": [{ "pattern": "movva.eu", "custom_domain": true }],
+	"workers_dev": true,
+	// A preview URL per branch, to try a module on the phone before it goes live.
+	"preview_urls": true,
+	// `wrangler preview` refuses to run without this block. It may stay empty.
+	"previews": {}
+}

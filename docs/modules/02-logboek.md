@@ -1,5 +1,7 @@
 # Module 2 — Logboek
 
+Status: klaar.
+
 Na deze module train je met Movva. Je opent hem in de sportschool, ziet wat er vandaag op
 het programma staat, logt je sets en ziet wat je de volgende keer tilt. Op je telefoon,
 zonder account, en het blijft bewaard in je browser.
@@ -45,3 +47,12 @@ Het schema is in deze module nog vast: Kays vierdagenschema. Zelf instellen is m
   voorgevuld.
 - In een week met handbaltraining én wedstrijd ontbreekt kracht D, met de reden erbij.
 - Alles werkt en leest goed op 390 px breed, licht en donker.
+
+## Uitkomst
+
+- Alle vier de acceptatiecriteria zijn een Playwright-test (`e2e/logbook.spec.ts`), op een
+  Pixel 7 en een iPhone 15, tegen `wrangler dev`. Bekeken op 390 px, licht en donker.
+- 93 unit-tests, typecheck zonder waarschuwingen, en een groottebudget: 109,7 kB JavaScript
+  (gzip), waarvan Zod ongeveer 29 kB en Dexie ongeveer 27 kB; 155,9 kB lettertypen, eenmalig.
+- Klaar voor Cloudflare Workers Builds, zoals Coachboard: main gaat live, elke andere branch
+  krijgt een preview-URL. movva.eu volgt in module 7.

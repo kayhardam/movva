@@ -21,16 +21,20 @@ A presentation change is verified on a really rendered page at 390 px wide, ligh
 
 ## Commands
 
-```bash
-npm run dev      # dev server
-npm test         # Vitest, once
-npm run check    # svelte-kit sync + svelte-check (TypeScript and Svelte)
-npm run lint     # prettier --check + eslint
-npm run format   # prettier --write
-npm run build    # static site in build/
-```
+| Command                                 | What it does                                                                                                                                                                                                                                                                                               |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`                           | Dev server.                                                                                                                                                                                                                                                                                                |
+| `npm run verify`                        | What CI runs: lint → check → test → build → size budgets. Must be green before every commit.                                                                                                                                                                                                               |
+| `npm run e2e`                           | Playwright in mobile Chromium (Pixel 7) and WebKit (iPhone 15). Builds, then serves `build/` with `wrangler dev` on port 8787, the way Cloudflare does. Outside CI it reuses a server already on that port. First time: `npx playwright install chromium webkit`. A separate CI job, not part of `verify`. |
+| `npm run budget`                        | The size budgets against the current `build/` (run `npm run build` first).                                                                                                                                                                                                                                 |
+| `npm test` / `check` / `lint` / `build` | The separate steps. `check` fails on warnings too.                                                                                                                                                                                                                                                         |
+| `npm run format`                        | Prettier, writing.                                                                                                                                                                                                                                                                                         |
 
-CI (`.github/workflows/ci.yml`) runs lint, check, test and build on every push and pull request.
+Commit only when `npm run verify` exits with code 0. Check the exit code itself, not the output: a pipe through `tail` or `head` hides a failure.
+
+## Deploy
+
+Cloudflare Workers Builds, as for Coachboard: `npm run build`, then `npx wrangler deploy` on `main` and `npx wrangler preview` on any other branch, which gives every branch its own preview URL. `wrangler.jsonc` makes that a plain upload of `build/` with no Worker code; `build/404.html` is the app shell for unknown addresses and is served with status 404. The `movva.eu` route is commented out until the domain is a zone in the same Cloudflare account.
 
 ## Stack
 
@@ -40,9 +44,12 @@ SvelteKit 3 came out in October 2026, after most model training data. Look APIs 
 
 ## Architecture
 
-- **`src/lib/`** is plain TypeScript without DOM or storage: `dates`, `plan/schema` (+ `plan/default-plan`), `log/schema`, `phase`, `advice`, `plates`, `planner`. Every file has a `.test.ts` next to it. Screens call these functions and contain no rules of their own.
-- **`src/routes/`** holds the screens. `+layout.ts` prerenders everything into static files; a page that depends on today's date or on browser storage sets `ssr = false`.
+- **`src/lib/`** is plain TypeScript without DOM: `dates`, `plan/schema` (+ `plan/default-plan`), `log/schema`, `phase`, `advice`, `plates`, `planner`, `session` (which training a day shows, the form, the entry it becomes), `progress`, `i18n/nl`. Every file has a `.test.ts` next to it.
+- **`src/lib/store/store.ts`** is the only code that touches storage: a `Store` interface with an IndexedDB implementation (Dexie) and an in-memory one (tests, and browsers without IndexedDB).
+- **`src/lib/app.svelte.ts`** is the app's state as a class with `$state` fields: it connects the rules to the screen and to the store, and saves without a save button. No rules live there.
+- **`src/lib/components/`** and **`src/routes/`** hold the screens. They show, take input and call the app class; they contain no rules. `+layout.ts` prerenders everything; a page that depends on today's date or on browser storage sets `ssr = false`.
 - **Imports** use `#lib/…` with an explicit `.ts` extension. `#lib` resolves through Node subpath imports, which need exact paths. Relative imports inside `src/lib` carry `.ts` too.
+- **Copy** lives in `src/lib/i18n/nl.ts`. The English dictionary will be typed `Copy`, so a missing text fails `npm run check`.
 
 ## Settled decisions (do not reopen without a reason)
 
@@ -55,10 +62,16 @@ SvelteKit 3 came out in October 2026, after most model training data. Look APIs 
 - **Plates**: the fewest plates, counted in grams. "Heaviest plate first" fails for custom plate sets such as only 15s and 10s.
 - **Zod's readable API stays**, although `zod/mini` would save about 20 kB gzip. Revisit only if bundle size starts to matter.
 - **Text is rendered with `{…}`**, which escapes it. `{@html}` is never used on anything that can come from a plan or a log.
-- **Fonts are bundled with the app**, never loaded from Google Fonts, which would hand every visitor's IP address to Google.
+- **Fonts are bundled with the app**, never loaded from Google Fonts, which would hand every visitor's IP address to Google. Latin subsets only.
+- **Storage is IndexedDB through Dexie**, behind the `Store` interface. Every record is checked with Zod on the way in and on the way out; a damaged record is skipped, never thrown. A schema change is a new `this.version(n)` with an upgrade step; an existing version is never edited.
+- **Saving has no button**: 600 ms after the last keystroke, and at once when the page is hidden or closed (`visibilitychange`, `pagehide`). Saves run one after another through a promise queue, and a version counter notices typing during a save.
+- **Size budgets** (`scripts/check-budget.mjs`) are measured sizes plus a small margin. Raise one only on purpose, with the reason in the pull request.
 
 ## Gotchas
 
 - `noUncheckedIndexedAccess` is on: `array[i]` is `T | undefined`.
 - Vitest runs with `requireAssertions`: a test without an `expect` fails.
+- `svelte/prefer-svelte-reactivity` flags `new Date()` in `.svelte.ts` files. A timestamp is no reactive state: create it in plain `.ts` (as `toEntry()` does with its default argument).
+- `svelte/no-navigation-without-resolve`: internal links take `resolve()` from `$app/paths`.
+- The e2e tests fix the clock to Friday 30 October 2026 (`page.clock.setFixedTime`), week 1 of Kay's plan, so every run sees the same week. Store tests use `fake-indexeddb`.
 - `npm install` on npm 10 can crash with `Cannot read properties of null (reading 'edgesOut')` on the Vitest 4 tree; that is why Vitest is on 5.
