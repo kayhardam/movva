@@ -1,6 +1,6 @@
-# Weekschema
+# Movva
 
-Een aanpasbaar weekschema voor wedstrijdsport en krachttraining. Je stelt je sport, je trainings- en wedstrijddagen en je oefeningen in; de app deelt de krachttrainingen in rond de sport, houdt je log bij en zegt wat je vandaag tilt.
+Je weekschema voor wedstrijdsport en krachttraining, straks op [movva.eu](https://movva.eu). Je stelt je sport, je trainings- en wedstrijddagen en je oefeningen in; de app deelt de krachttrainingen in rond de sport, houdt je log bij en zegt wat je vandaag tilt.
 
 Geen account en geen server: je log blijft in je eigen browser, en een schema deel je via een link.
 

@@ -18,7 +18,7 @@
 </script>
 
 <main>
-  <h1>Weekschema</h1>
+  <h1>Movva</h1>
   <p>Week {phase.week} · {phase.block.name}{phase.light ? ' · lichte week' : ''}</p>
 
   <fieldset>
